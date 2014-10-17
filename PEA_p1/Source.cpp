@@ -19,11 +19,9 @@ int main()
 	t->print();
 	cout << endl;
 
-	vector<int> wynik = t->annealing(5);
-	for (int& i : wynik)
-		cout << i << " ";
+	vector<int> wynik = t->annealing(100, 500);
 
-	cout << endl << "KOSZT: " << t->cost(wynik);
+	cout << endl << "NAJMNIEJSZY KOSZT: " << t->cost(wynik) << endl;
 	
 	system("PAUSE");
 }

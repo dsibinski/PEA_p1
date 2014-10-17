@@ -88,32 +88,122 @@ int tsp::cost(vector<int>& sol)
 	return cost;
 }
 
-vector<int> tsp::annealing(int L)
+vector<int> tsp::randomSolution(int number)
 {
-										//losowanie pocz¹tkowego rozwi¹zania 'sol'
-	vector<int> v;						
+	//losowanie pocz¹tkowego rozwi¹zania 'sol'
+	vector<int> v;
 	vector<int> sol;					//wektor rozwi¹zania z numerami kolejnych wierzcho³ków
-	for (int i = 0; i != sz; i++)
+	for (int i = 0; i != number; i++)
 		v.push_back(i);
 
 	srand(time(NULL));
-	for (int i = 0; i != sz; i++)
+	for (int i = 0; i != number; i++)
 	{
 		int x = rand() % v.size();
 		sol.push_back(v[x]);
-		v.erase(v.begin() + x);
+		v.erase(v.begin() + x);			// erase() przyjmuje w parametrze iterator, a nie 'int'. begin() to iterator wskazuj¹cy na pierwszy element
 	}
-	sol.push_back(sol[0]);				//wylosowane rozwi¹zanie pocz¹tkowe
-	vector<int> bestSol = sol;
+	sol.push_back(sol[0]);				//ostatnim wierzcho³ek musi byæ równy pierwszemu (komiwoja¿er wraca do pocz¹tkowego miasta)
 
+	return sol;
+}
+vector<int> tsp::adjacentSolution(vector<int>& sol)
+{
+	vector<int> _sol = sol;
+
+	//wyznaczenie losowego rozwi¹zania s¹siedniego "_sol" poprzez zamianê dwóch losowych wierzcho³ków
+	//Przyk³ad: sol = {2, 1, 3, 0, 2}; // sol.size() = 5;  ale zawsze v[0] = v[4] (pierwsze miasto jest ostatnim miastem)
+	//dlatego ostatniego indeksu nie rozwa¿am do losowania - jego wartoœæ zawsze bêdzie równa v[0]
+	int x1, x2, tmp;					//zamienie wierzcholek x1 z wierzcholkiem x2
+	x1 = rand() % (_sol.size() - 1);
+	x2 = rand() % (_sol.size() - 1);
+	if (x2 == x1)					//aby nie wylosowaæ 2x tego samego wierzcholka
+	{
+		if (x2 == _sol.size() - 2)	// gdy s¹ takie same i s¹ ostatnim miaste, to zamieniamy ostatnie z przedostatnim
+			x2--;
+		else
+			x2++;					//jeœli takie same, ale nie s¹ ostatnim miastem to zamieniamy wylosowany z kolejnym
+	}
+
+	//zamiana wylosowanych wierzcholkow
+	tmp = _sol[x1];
+	_sol[x1] = _sol[x2];
+	_sol[x2] = tmp;
+	_sol[_sol.size() - 1] = _sol[0];
+
+	return _sol;
+}
+
+vector<int> tsp::annealing(int L, double t)
+{
+
+	cout << "ROZWIAZANIE POCZATKOWE" << endl;
+	vector<int> sol = randomSolution(sz);
+	for (int& x : sol)
+		cout << x << " ";
+	cout << endl << "KOSZT: " << cost(sol) << endl;
+
+	vector<int> bestSol = sol;			// wylosowane rozwi¹zanie jest automatycznie najlepszym, poniewa¿ jest to jedyne rozwi¹zanie
+	vector<int> _sol = sol;				//_sol - rozwi¹zanie s¹siednie
+
+	int costSol, cost_Sol, costBestSol;		//
+	costSol = cost(sol);
+	costBestSol = costSol;
 
 	////////////// algorytm wy¿arzania
+	//double temp = costSol;
+	double temp = t;
 	for (int i = 0; i != L; i++)
 	{
+		_sol = adjacentSolution(sol);		// rozwi¹zanie s¹siednie
+		cost_Sol = cost(_sol);
 
+
+	/////////////////////////////////////////////  WYPISANIE NOWEJ ŒCIE¯KI I KOSZTÓW	////////////////
+		cout << endl << "--------------------------------------------------------------" << endl;
+		for (int& x : _sol)
+			cout << x << " ";
+		cout << endl << "KOSZT: " << cost_Sol;
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		//  sprawdzenie czy nowe rozwi¹zanie jest lepsze od najlepszego
+		if (cost_Sol < costBestSol)
+		{
+			bestSol = _sol;
+			costBestSol = cost_Sol;
+		}
+		double delta = cost_Sol - costSol;
+		if (delta < 0)
+		{
+			sol = _sol;
+			costSol = cost_Sol;
+			cout << "rozwiazanie lepsze, AKCEPTUJE" << endl;
+		}
+		else
+		{
+			double x = (rand() % 10000) / 10000.0;				// losowa liczba z zakresu <0, 1)
+			cout << "rozwiazanie gorsze..." << endl;
+			cout << "losowy x = " << x << endl;
+			cout << "delta    =" << delta << endl;
+			cout << "temp     =" << temp << endl;
+			cout << "prawdopodobienstwo = " << exp((-delta) / temp) << endl;
+			cout << x - (delta / temp) << endl;
+			if (x < (exp((-delta) / temp)))
+			{
+				cout << "AKCEPTUJE" << endl;
+				sol = _sol;
+				costSol = cost_Sol;
+			}
+			else
+				cout << "ODRZUCAM" << endl;
+
+			temp *= 0.85;
+		}
+		cout << endl << "--------------------------------------------------------------" << endl;
+			
+			
 	}
 	//cout << (rand() % 100) / 100.0 << " " << (rand() % 100) / 100.0 << " " << endl;	//losowanie z zakresu<0, 1)
 
 	return bestSol;
 }
-
