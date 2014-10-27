@@ -41,13 +41,25 @@ double GetCounter()
 }
 
 
-
-
-int main()
+void startAlgorithm(char choice)
 {
+	srand(time(NULL));
+
 	string dane = "dane.txt";
 	tsp* t = new tsp();
-	t->load("dane.txt");
+	if (choice == 'f')
+	{
+		t->loadFromFile("dane.txt");
+	}
+
+	else
+	{
+		cout << "\nPodaj liczbe miast: ";
+		int n;
+		cin >> n;
+		t->loadRandom(n);
+	}
+	
 	t->print();
 	cout << endl;
 	StartCounter();
@@ -57,6 +69,54 @@ int main()
 	cout << endl << endl << "Czas dzialania algorytmu: " << time << " [ms]. " << endl;
 
 	cout << endl << "NAJMNIEJSZY KOSZT: " << t->cost(wynik) << endl;
+}
+
+
+
+int main()
+{
+
+	int quit = -1;
+	int choice = -1;
+
+	cout << "PEA - projekt nr 1 - Algorytm Symulowanego Wyzarzania";
+	cout << "Dawid Sibinski, Bartlomiej Grzegorek\n\n";
+
+	do
+	{
+
+		cout << endl << "Podaj wybor: " << endl;
+		cout << "1 - Algorytm Wyzarzania - laduj z pliku dane.txt\n";
+		cout << "2 - Algorytm Wyzarzania - generuj losowe wagi dla wybranej liczby miast\n";
+		cout << "0 - wyjscie z programu.\n";
+		cout << "Wybor: ";
+		cin >> choice;
+
+		switch (choice)
+		{
+		case 1:
+			startAlgorithm('f'); // rozpoczecie algorytmu w trybie czytania z pliku
+			break;
+
+		case 2:
+			startAlgorithm('r'); // rozpoczecie algorytmu w trybie losowania wag dla wybraje liczby miast
+			break;
+		case 0:
+			quit = 0;
+			break;
+
+		default:
+			
+			break;
+		}
+
+	} while (quit != 0);
+
+
+
 	
-	system("PAUSE");
+	// zamiast system("pause"):
+	cout << "\nNacisnij dowolny klawisz, aby zakonczyc....\n";
+	cin.get();
+	cin.get();
 }

@@ -2,10 +2,13 @@
 #include <ctime>
 using namespace std;
 
+
+// konstruktor
 tsp::tsp() : sz{ 0 }, A{ nullptr }
 {
 }
 
+// destruktur
 tsp::~tsp()
 {
 	if (A != nullptr)
@@ -18,6 +21,7 @@ tsp::~tsp()
 	}
 }
 
+// iniciuje macierz sasiedztwa o zadanym rozmiarze
 void tsp::init(int size)
 {
 	if (A != nullptr)
@@ -28,7 +32,9 @@ void tsp::init(int size)
 		A[i] = new int[sz];
 }
 
-bool tsp::load(string name)
+
+// laduje dane do macierzy z pliku o zadanej nazwie
+bool tsp::loadFromFile(string name)
 {
 	fstream file;
 	file.open(name, ios::in);
@@ -58,8 +64,30 @@ bool tsp::load(string name)
 }
 
 
+// laduje losowe dane (wagi) do macierzy dla podanej liczby miast
+void tsp::loadRandom(int _n)
+{
+	int n = _n;
+	int wartosc;
+	init(n);
+
+	for (int i = 0; i != sz; i++)
+	for (int j = 0; j != sz; j++)
+	{
+		if (i == j)
+			A[i][j] = 0; // brak petli
+		else
+			A[i][j] = ((rand() %50) + 1); // wartosci losowe od 1 do 50
+	}
+
+
+}
+
+// zwraca rozmiar
 int tsp::size() { return sz; }
 
+
+// funkcja wyswietlajaca na ekranie zawartosc macierzy sasiedztwa
 void tsp::print()
 {
 	for (int i = 0; i != sz; i++)
@@ -80,6 +108,7 @@ KOSZT: vector<int> sol = {3, 2, 0, 1, 3};   // przyk³adowy wektor rozwi¹zania
 							+  A[0][1]
 								+ A[1][3];
 */
+// zwraca koszt drogi dla zadanego wektora rozwiazania
 int tsp::cost(vector<int>& sol)
 {
 	int cost = 0;
@@ -88,6 +117,7 @@ int tsp::cost(vector<int>& sol)
 	return cost;
 }
 
+// generuje losowe rozwiazanie dla zadanej liczby miast
 vector<int> tsp::randomSolution(int number)
 {
 	//losowanie pocz¹tkowego rozwi¹zania 'sol'
@@ -107,6 +137,8 @@ vector<int> tsp::randomSolution(int number)
 
 	return sol;
 }
+
+// zwraca rozwiazanie sasiednie dla zadanego wektora rozwiazania obecnego
 vector<int> tsp::adjacentSolution(vector<int>& sol)
 {
 	vector<int> _sol = sol;
@@ -134,6 +166,9 @@ vector<int> tsp::adjacentSolution(vector<int>& sol)
 	return _sol;
 }
 
+
+
+// algorytm wyzarzania dla zadanej liczby ietracji i temperatury poczatkowej; zwraca najlepsze znalezione rozwiazanie (wektor)
 vector<int> tsp::annealing(int L, double t)
 {
 

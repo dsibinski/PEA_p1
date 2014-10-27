@@ -11,7 +11,9 @@ public:
 	tsp();
 	~tsp();
 	void init(int);			//inicjalizacja przy wczytywaniu danych z pliku
-	bool load(string);		//zaladowanie z pliku("œcie¿ka do pliku .txt")
+	bool loadFromFile(string);		//zaladowanie z pliku("œcie¿ka do pliku .txt")
+	void loadRandom(int _n); // wypelnienie struktury losowymi wagami dla podanej liczby miast
+	
 
 	int size();				//zwraca liczbe miast
 
