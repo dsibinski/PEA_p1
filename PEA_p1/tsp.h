@@ -25,6 +25,6 @@ public:
 	// przyjmuje liczbe miast. Zwraca losow¹ permutacjê (ostatnia liczba = pierwszej)
 	//np. randomSolution(4); zwróci vector<int> sol = { 2, 1, 0, 3, 2 };
 
-	vector<int> annealing(int L, double t);		//algorytm wy¿azania,  L - liczba kroków, t - temperatura pocz¹tkowa
+	vector<int> annealing(int L, int n, double t, double p);		//algorytm wy¿azania,  L - liczba kroków, t - temperatura pocz¹tkowa
 };
 

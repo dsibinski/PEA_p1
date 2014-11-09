@@ -14,6 +14,21 @@ double PCFreq = 0.0;
 __int64 CounterStart = 0;
 
 
+// zapis do pliku:
+
+// zapisywanie zawartosci tablicy do pliku xls
+void zapisz(double tab[], int rozmiar, string nazwa_pliku)
+{
+	ofstream plik(nazwa_pliku);
+
+	for (int i = 0; i<rozmiar; i++){
+		plik << tab[i] << "\n";
+	}
+	plik.close();
+}
+
+
+
 // mozna zamienic w funkcji StartCounter odpowiednie czesci
 // zeby uzyskac wynik zwracany przez getCounter() w innych jednostkach:
 // sekundy:
@@ -44,7 +59,7 @@ double GetCounter()
 void startAlgorithm(char choice)
 {
 	srand(time(NULL));
-
+	int n; // liczba miast
 	string dane = "dane.txt";
 	tsp* t = new tsp();
 	if (choice == 'f')
@@ -55,7 +70,7 @@ void startAlgorithm(char choice)
 	else
 	{
 		cout << "\nPodaj liczbe miast: ";
-		int n;
+		
 		cin >> n;
 		t->loadRandom(n);
 	}
@@ -63,7 +78,7 @@ void startAlgorithm(char choice)
 	t->print();
 	cout << endl;
 	StartCounter();
-	vector<int> wynik = t->annealing(100, 500);
+	vector<int> wynik = t->annealing(100000, n, 500, 0.85);
 	double time = GetCounter();
 
 	cout << endl << endl << "Czas dzialania algorytmu: " << time << " [ms]. " << endl;
@@ -72,6 +87,37 @@ void startAlgorithm(char choice)
 }
 
 
+// pomiar czasu (miasta, liczba pomiarow, wspolczynnik)
+void measurement(int n_, int m, double p)
+{
+	double * results = new double[m]; // tablica, ktora bedzie przechowywac wyniki pomiarow
+	srand(time(NULL));
+	int n = n_; // liczba miast
+	tsp* t = new tsp();
+	t->loadRandom(n);
+
+	// m pomiarow
+	for (int i = 0; i < m; i++)
+	{
+
+		//t->loadRandom(n);
+		cout << endl;
+		StartCounter();
+		vector<int> wynik = t->annealing(100000, n, 500, p);
+		results[i] = GetCounter(); // wyniki pomiarow zapisujemy w tablicy
+
+		cout << endl << endl << "Czas dzialania algorytmu: " << results[i] << " [ms]. " << endl;
+
+		cout << endl << "NAJMNIEJSZY KOSZT: " << t->cost(wynik) << endl;
+		
+	}
+	
+	zapisz(results, m, "pomiar.xls");
+
+
+
+
+}
 
 int main()
 {
@@ -88,6 +134,7 @@ int main()
 		cout << endl << "Podaj wybor: " << endl;
 		cout << "1 - Algorytm Wyzarzania - laduj z pliku dane.txt\n";
 		cout << "2 - Algorytm Wyzarzania - generuj losowe wagi dla wybranej liczby miast\n";
+		cout << "3 - pomiar\n";
 		cout << "0 - wyjscie z programu.\n";
 		cout << "Wybor: ";
 		cin >> choice;
@@ -100,6 +147,9 @@ int main()
 
 		case 2:
 			startAlgorithm('r'); // rozpoczecie algorytmu w trybie losowania wag dla wybraje liczby miast
+			break;
+		case 3:
+			measurement(17, 100, 0.999);
 			break;
 		case 0:
 			quit = 0;
