@@ -50,14 +50,13 @@ bool tsp::loadFromFile(string name)
 
 
 	for (int i = 0; i != sz; i++)
-		for (int j = 0; j != sz; j++)
-		{
-			if (i == j) 
-				A[i][j] = 0;
-			else
-				file >> A[i][j];
-		}
-			
+	for (int j = 0; j != sz; j++)
+	{
+		if (i == j)
+			A[i][j] = 0;
+		else
+			file >> A[i][j];
+	}
 
 	file.close();
 	return true;
@@ -77,9 +76,8 @@ void tsp::loadRandom(int _n)
 		if (i == j)
 			A[i][j] = 0; // brak petli
 		else
-			A[i][j] = ((rand() %50) + 1); // wartosci losowe od 1 do 50
+			A[i][j] = ((rand() % 50) + 1); // wartosci losowe od 1 do 50
 	}
-
 
 }
 
@@ -103,10 +101,10 @@ void tsp::print()
 
 /*
 KOSZT: vector<int> sol = {3, 2, 0, 1, 3};   // przyk³adowy wektor rozwi¹zania
-				cost =  A[3][2]
-						+  A[2][0]
-							+  A[0][1]
-								+ A[1][3];
+cost =  A[3][2]
++  A[2][0]
++  A[0][1]
++ A[1][3];
 */
 // zwraca koszt drogi dla zadanego wektora rozwiazania
 int tsp::cost(vector<int>& sol)
@@ -169,19 +167,21 @@ vector<int> tsp::adjacentSolution(vector<int>& sol)
 
 
 // algorytm wyzarzania dla zadanej liczby ietracji i temperatury poczatkowej; zwraca najlepsze znalezione rozwiazanie (wektor)
+
+// wy¿arzanie(liczba kroków, liczba miast, temperatura pocz¹tkowa, wspó³czynnik)
 vector<int> tsp::annealing(int L, int n, double t, double p)
 {
 	int worseSol = 0; // licznik znalezionych gorszych rozwiazan (odrzuconych)
-					  // jesli algorytm 15%n razy odrzuci rozwiazanie, przerywamy dzialanie
+	// jesli algorytm 15%n razy odrzuci rozwiazanie, przerywamy dzialanie
 
 	int worseAcceptable = 0.15 * n; // akceptowalna liczba gorszych rozwiazan w danym kroku
 
-	
+
 	cout << "ROZWIAZANIE POCZATKOWE" << endl;
 	vector<int> sol = randomSolution(sz);
 	//for (int& x : sol)
 	//	cout << x << " ";
-	//cout << endl << "KOSZT: " << cost(sol) << endl;
+	cout << endl << "KOSZT: " << cost(sol) << endl;
 
 	vector<int> bestSol = sol;			// wylosowane rozwi¹zanie jest automatycznie najlepszym, poniewa¿ jest to jedyne rozwi¹zanie
 	vector<int> _sol = sol;				//_sol - rozwi¹zanie s¹siednie
@@ -193,19 +193,20 @@ vector<int> tsp::annealing(int L, int n, double t, double p)
 	////////////// algorytm wy¿arzania
 	//double temp = costSol;
 	double temp = t;
-	for (int i = 0; i != L; i++)
+	//for (int i = 0; i != L; i++)
+	while (!(worseSol > worseAcceptable))
 	{
 		_sol = adjacentSolution(sol);		// rozwi¹zanie s¹siednie
 		cost_Sol = cost(_sol);
+		//	cout << "Rozwiazanie sasiednie: " << cost_Sol << endl;
 
+		/////////////////////////////////////////////  WYPISANIE NOWEJ ŒCIE¯KI I KOSZTÓW	////////////////
+		//	cout << endl << "--------------------------------------------------------------" << endl;
+		//	for (int& x : _sol)
+		//		cout << x << " ";
+		//	cout << endl << "KOSZT: " << cost_Sol;
+		///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	/////////////////////////////////////////////  WYPISANIE NOWEJ ŒCIE¯KI I KOSZTÓW	////////////////
-	//	cout << endl << "--------------------------------------------------------------" << endl;
-	//	for (int& x : _sol)
-	//		cout << x << " ";
-	//	cout << endl << "KOSZT: " << cost_Sol;
-	///////////////////////////////////////////////////////////////////////////////////////////////////
-		
 		//  sprawdzenie czy nowe rozwi¹zanie jest lepsze od najlepszego
 		if (cost_Sol < costBestSol)
 		{
@@ -217,36 +218,35 @@ vector<int> tsp::annealing(int L, int n, double t, double p)
 		{
 			sol = _sol;
 			costSol = cost_Sol;
-			cout << "rozwiazanie lepsze, AKCEPTUJE" << endl;
+			//	cout << "rozwiazanie lepsze, AKCEPTUJE" << endl;
 			worseSol = 0;
 		}
 		else
 		{
 			worseSol++;
 			double x = (rand() % 10000) / 10000.0;				// losowa liczba z zakresu <0, 1)
-			cout << "rozwiazanie gorsze..." << endl;
-			cout << "losowy x = " << x << endl;
-			cout << "delta    =" << delta << endl;
-			cout << "temp     =" << temp << endl;
-			cout << "prawdopodobienstwo = " << exp((-delta) / temp) << endl;
-			cout << x - (delta / temp) << endl;
+			//	cout << "rozwiazanie gorsze..." << endl;
+			//	cout << "losowy x = " << x << endl;
+			//	cout << "delta    =" << delta << endl;
+			//	cout << "temp     =" << temp << endl;
+			//	cout << "prawdopodobienstwo = " << exp((-delta) / temp) << endl;
+			//	cout << x - (delta / temp) << endl;
 
 			if (x < (exp((-delta) / temp)))
 			{
-				cout << "AKCEPTUJE" << endl;
+				//		cout << "AKCEPTUJE" << endl;
 				sol = _sol;
 				costSol = cost_Sol;
-				
+
 			}
 			else
-				cout << "ODRZUCAM" << endl;
+				//		cout << "ODRZUCAM" << endl;
+				;
 
-			temp *= p; // zmniejszamy temperature wg zadanego wspolczynnika
 		}
-		cout << endl << "--------------------------------------------------------------" << endl;
-			// przerywamy dzialanie algorytmu, jesli 15%n razy znaleziono gorsze rozwiazanie
-		if (worseSol > worseAcceptable)
-			break;
+		temp *= p; // zmniejszamy temperature wg zadanego wspolczynnika
+		//	cout << endl << "--------------------------------------------------------------" << endl;
+		// przerywamy dzialanie algorytmu, jesli 15%n razy znaleziono gorsze rozwiazanie
 	}
 	//cout << (rand() % 100) / 100.0 << " " << (rand() % 100) / 100.0 << " " << endl;	//losowanie z zakresu<0, 1)
 
